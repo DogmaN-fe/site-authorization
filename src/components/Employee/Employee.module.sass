@@ -1,0 +1,18 @@
+.employee
+    display: flex
+    flex-direction: column
+    width: 100%
+    min-height: 265px
+    &__description
+        display: flex
+        max-width: 947px
+        align-self: center
+        justify-content: space-between
+
+        padding: 0 20px
+
+@media (max-width: 750px)
+    .employee
+        &__description
+            flex-direction: column-reverse
+            padding: 0 16px 0

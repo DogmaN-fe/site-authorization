@@ -1,0 +1,28 @@
+@import '../../sass/variables'
+
+.button
+    padding: 8px 16px
+
+    color: $light-grey-text-or-background
+
+    background: none
+
+    border: solid 1px $light-grey-text-or-background
+    border-radius: 8px
+
+    transition: background 0.5s
+
+    font-size: 16px
+    font-weight: 400
+
+    &:hover
+        cursor: pointer
+        background: $light-grey-text-or-background
+        color: #000000
+
+@media (max-width: 750px)
+    .button
+        border: none
+        padding: 0
+        width: 18px
+        height: 18px

@@ -1,0 +1,38 @@
+@import '../../sass/variables'
+
+.link
+    display: block
+    max-width: 305px
+    text-decoration: none
+    color: #000000
+    box-shadow: 0 1px 4px #33333333
+    border-radius: 10px
+
+.user_card
+    display: flex
+    flex-direction: column
+    align-items: center
+    padding: 36px 20px 20px 20px
+    &__avatar
+        border-radius: 100%
+        width: 124px
+        height: 124px
+        margin-bottom: 16px
+    &__info
+        font-size: 20px
+        font-weight: 400
+        margin-bottom: 16px
+    &__like_button
+        align-self: flex-end
+        display: flex
+        justify-content: center
+        align-items: center
+        width: 30px
+        height: 28px
+        padding: 0
+        border: none
+        background-color: $light-grey-text-or-background
+        border-radius: 4px
+        transition: background-color 0.3s
+        &:hover
+            background-color: #a7a7a7
