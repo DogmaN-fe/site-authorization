@@ -105,7 +105,7 @@ const RegistrationForm = () => {
           text={"Имя"}
           value={formData.name}
           handleChange={handleChange}
-          placeholder={"Артур"}
+          placeholder={"Имя"}
           error={emptyName}
         />
         <CustomInput
