@@ -9,7 +9,7 @@ const CustomButton = ({
 }: {
   func: MouseEventHandler<HTMLButtonElement>;
   value: string;
-  imageOnMob: string;
+  imageOnMob?: string;
 }) => {
   // Хук состояния для определения, является ли устройство мобильным
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 750);
@@ -33,7 +33,7 @@ const CustomButton = ({
   return (
     <button className={styles.button} onClick={func}>
       {/* Применение стилей и функции клика */}
-      {isMobile ? <img src={imageOnMob} alt={imageOnMob} /> : value}
+      {isMobile && imageOnMob ? <img src={imageOnMob} alt={imageOnMob} /> : value}
       {/* Отображение изображения или текста в зависимости от устройства */}
     </button>
   );

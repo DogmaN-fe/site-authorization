@@ -11,21 +11,23 @@ const Employee = ({
   user: IEmployeeData;
 }) => {
   return (
-    <section className={styles.employee}>
+    <>
       {/* Шапка сотрудника с аватаром и именем */}
       <EmployeeHead
         avatar={user?.avatar}
         first_name={user?.first_name}
         last_name={user?.last_name}
       />
-      {/* Блок с описанием и контактами сотрудника */}
-      <div className={styles.employee__description}>
-        {/* Описание сотрудника */}
-        <EmployeeDescription description={additionalInfo.description} />
-        {/* Контакты сотрудника */}
-        <EmployeeContacts email={user.email} phone={additionalInfo.phone} />
-      </div>
-    </section>
+      <main className={styles.employee}>
+        {/* Блок с описанием и контактами сотрудника */}
+        <section className={styles.employee__description}>
+          {/* Описание сотрудника */}
+          <EmployeeDescription description={additionalInfo.description} />
+          {/* Контакты сотрудника */}
+          <EmployeeContacts email={user.email} phone={additionalInfo.phone} />
+        </section>
+      </main>
+    </>
   );
 };
 

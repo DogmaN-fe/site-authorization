@@ -34,10 +34,10 @@ const EmployeeHead = ({
 
   return (
     <header className={styles.employee_head}>
-      <span className={styles.employee_head__buttons}>
+      <nav className={styles.employee_head__buttons}>
         <CustomButton func={goBack} value="Назад" imageOnMob={arrowImage} />
         <CustomButton func={logOut} value="Выход" imageOnMob={exitImage} />
-      </span>
+      </nav>
       <span className={styles.employee_head__info}>
         <img
           src={`${avatar}`}

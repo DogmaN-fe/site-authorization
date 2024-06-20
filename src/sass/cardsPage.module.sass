@@ -1,6 +1,40 @@
-.cards
-    display: grid
+.main
+    display: flex
+    flex-direction: column
+    &__cards
+        display: grid
+        justify-content: center
+        margin-bottom: 56px
+        grid-template-columns: repeat(auto-fill, minmax(305px, 305px))
+        grid-gap: 20px
+    &__section_button
+        align-self: center
+        margin-bottom: 69px
+
+.button
+    display: flex
     justify-content: center
-    margin-bottom: 56px
-    grid-template-columns: repeat(auto-fill, minmax(305px, 305px))
-    grid-gap: 20px
+    align-items: center
+    padding: 8px 16px
+    border-radius: 8px
+    background-color: #ffffff
+
+    border: solid 1px #000000
+
+    transition: background-color 0.3s
+    &_hidden
+        display: none
+    &:hover
+        cursor: pointer
+        background-color: #dadada
+    &__text
+        margin-right: 8px
+        font-size: 16px
+        line-height: 21.79px
+
+@media (max-width: 750px)
+    .main
+        &__cards
+            margin-bottom: 32px
+        &__section_button
+            margin-bottom: 32px
