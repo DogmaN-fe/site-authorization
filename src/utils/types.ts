@@ -1,13 +1,13 @@
-// Тип ответа сервера
+// Тип ответа сервера на авторизацию
 export interface IAnswer {
   token: string;
   id?: string;
 }
 
 // Тип сохранения лайка
-export interface ILiked {
+export interface ILike {
   id: number;
-  liked: boolean;
+  like: boolean;
 }
 
 // Тип данных работника
@@ -19,7 +19,7 @@ export interface IEmployeeData {
   avatar: string;
 }
 
-// Тип ответа сервера
+// Тип ответа сервера на получение карточек сотрудников
 export interface IApiResponse {
   page: number;
   per_page: number;
