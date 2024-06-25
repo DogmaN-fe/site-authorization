@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IEmployeeData } from "../utils/types";
 import NotUser from "../components/NotUser/NotUser";
 import Employee from "../components/Employee/Employee";
 
-const CardPage = () => {
+const CardPage = (): ReactElement => {
   // Получение id из параметров маршрута
   const { id } = useParams();
   // Переменная для хранения карточки сотрудника

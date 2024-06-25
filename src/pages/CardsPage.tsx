@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import CardsPageHeader from "../components/CardsPageHeader/CardsPageHeader";
@@ -10,7 +10,7 @@ import { loadLikes } from "../utils/redux/features/like-slice";
 import styles from "../sass/cardsPage.module.sass";
 import arrow_down from "../assets/arrow-down.svg";
 
-const CardsPage = () => {
+const CardsPage = (): ReactElement => {
   // Переменная для хранения карточек
   const [cards, setCards] = useState<IEmployeeData[] | []>([]);
   // Переменная для хранения страницы с карточками

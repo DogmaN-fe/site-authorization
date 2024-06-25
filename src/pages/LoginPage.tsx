@@ -1,6 +1,7 @@
+import { ReactElement } from "react";
 import LoginForm from "../components/LoginForm/LoginForm";
 
-const LoginPage = () => {
+const LoginPage = (): ReactElement => {
   return <LoginForm />;
 };
 
