@@ -1,52 +1,71 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../utils/redux/features/user-slice";
-import { AppDispatch } from "../../utils/redux/store";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./RegistrationForm.module.sass";
+
 import CustomInput from "../CustomInput/CustomInput";
+import { AppDispatch } from "../../utils/redux/store";
+import { setUser } from "../../utils/redux/features/user-slice";
+import { IFormData, IFormErrorMessage } from "../../utils/types";
+
+import styles from "./RegistrationForm.module.sass";
 
 const RegistrationForm = () => {
   // Состояние для данных формы
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    duplicatePassword: "",
-  });
-  // Состояния для сообщений об ошибках
-  const [emptyMail, setEmptyMail] = useState("");
-  const [emptyName, setEmptyName] = useState("");
-  const [differentPassword, setDifferentPassword] = useState("");
-  // Состояние для индикатора загрузки
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<IFormData | null>(null);
 
-  // Хук для отправки действий в Redux
+  // Объект для хранения сообщений об ошибках
+  const [formErrorMessage, setFormErrorMessage] =
+    useState<IFormErrorMessage | null>(null);
+
+  // Состояние для индикатора загрузки
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const dispatch = useDispatch<AppDispatch>();
-  // Хук для навигации
   const navigate = useNavigate();
 
   // Обработчик отправки формы
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true); // Включаем индикатор загрузки
+
+    // Включаем индикатор загрузки
+    setIsLoading(true);
+
+    // Пересенная для хранения информации об ошибках
+    let hasError: boolean = false;
 
     // Проверка на пустое поле имени
-    if (!formData.name) {
-      setEmptyName("Имя не введено");
-      setIsLoading(false); // Выключаем индикатор загрузки
-      return;
+    if (!formData?.name) {
+      setFormErrorMessage({
+        ...formErrorMessage!,
+        nameErrorMessage: "Имя не введено",
+      });
+
+      hasError = true;
     }
     // Проверка на пустое поле электронной почты
-    if (!formData.email) {
-      setEmptyMail("Почта не введена");
-      setIsLoading(false); // Выключаем индикатор загрузки
-      return;
+    if (!formData?.email) {
+      setFormErrorMessage({
+        ...formErrorMessage!,
+        emailErrorMessage: "Почта не введена",
+      });
+
+      hasError = true;
     }
     // Проверка на совпадение паролей
-    if (formData.password !== formData.duplicatePassword) {
-      setDifferentPassword("Пароли не совпадают");
-      setIsLoading(false); // Выключаем индикатор загрузки
+    if (formData?.password !== formData?.duplicatePassword) {
+      setFormErrorMessage({
+        ...formErrorMessage!,
+        passwordErrorMessage: "Пароли не совпадают",
+      });
+      hasError = true;
+    }
+
+    // Если есть какие-то ошибки, то отменяем отправку данных
+    if (hasError) {
+      // Выключаем индикатор загрузки
+      setIsLoading(false);
+      console.log("false");
+
       return;
     }
 
@@ -60,39 +79,32 @@ const RegistrationForm = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data?.error) {
-          dispatch(setUser(data)); // Сохраняем пользователя в Redux
-          navigate("/cards"); // Переходим на страницу с карточками
-        } else {
-          setEmptyMail("Неверная почта");
-        }
-        setIsLoading(false); // Выключаем индикатор загрузки
+        // Сохраняем пользователя в store
+        dispatch(setUser(data));
+        // Переходим на страницу с карточками
+        navigate("/cards");
       })
       .catch((error) => {
         console.log("Ошибка: " + error);
-        setIsLoading(false); // Выключаем индикатор загрузки при ошибке
+      })
+      .finally(() => {
+        // Выключаем индикатор загрузки
+        setIsLoading(false);
       });
   };
 
-  // Обработчик изменения полей ввода
+  /**
+   * Функция-обработчик изменения полей ввода
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Очищаем сообщения об ошибках при изменении содержимого полей
-    switch (e.target.name) {
-      case "name":
-        setEmptyName("");
-        break;
-      case "email":
-        setEmptyMail("");
-        break;
-      case "password":
-        setDifferentPassword("");
-        break;
-      case "duplicatePassword":
-        setDifferentPassword("");
-        break;
-    }
+    // Деструктурируем данные input'а (тип и значение)
+    const { name, value } = e.target;
+
+    // Очищаем информацию об ошибки определенного input
+    setFormErrorMessage({ ...formErrorMessage!, [`${name}ErrorMessage`]: "" });
+
     // Обновляем состояние с данными формы
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData!, [name]: value });
   };
 
   return (
@@ -103,34 +115,34 @@ const RegistrationForm = () => {
           type={"text"}
           name={"name"}
           text={"Имя"}
-          value={formData.name}
+          value={formData?.name || ""}
           handleChange={handleChange}
           placeholder={"Имя"}
-          error={emptyName}
+          error={formErrorMessage?.nameErrorMessage}
         />
         <CustomInput
           type={"email"}
           name={"email"}
           text={"Электронная почта"}
-          value={formData.email}
+          value={formData?.email || ""}
           handleChange={handleChange}
           placeholder={"example@mail.ru"}
-          error={emptyMail}
+          error={formErrorMessage?.emailErrorMessage}
         />
         <CustomInput
           type={"password"}
           name={"password"}
           text={"Пароль"}
-          value={formData.password}
+          value={formData?.password || ""}
           handleChange={handleChange}
           placeholder={"******"}
-          error={differentPassword}
+          error={formErrorMessage?.passwordErrorMessage}
         />
         <CustomInput
           type={"password"}
           name={"duplicatePassword"}
           text={"Подтвердите пароль"}
-          value={formData.duplicatePassword}
+          value={formData?.duplicatePassword || ""}
           handleChange={handleChange}
           placeholder={"******"}
         />
@@ -139,10 +151,8 @@ const RegistrationForm = () => {
           className={styles.registration__form_button}
           disabled={isLoading}
         >
-          {/* Текст кнопки изменяется в зависимости от состояния загрузки */}
           {isLoading ? "Загрузка..." : "Зарегистрироваться"}
         </button>
-        {/* Ссылка на страницу входа для зарегестрированных пользователей */}
         <Link to={"/login"} className={styles.registration__form_login}>
           Уже зарегистрированы?
         </Link>

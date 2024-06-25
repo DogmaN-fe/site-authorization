@@ -1,35 +1,39 @@
-import CustomButton from "../CustomButton/CustomButton"; // Импорт компонента кнопки
-import { useDispatch } from "react-redux"; // Импорт хука для отправки действий в хранилище
-import { AppDispatch } from "../../utils/redux/store"; // Тип диспетчера из хранилища
-import { removeUser } from "../../utils/redux/features/user-slice"; // Действие для удаления пользователя
-import { useNavigate } from "react-router-dom"; // Хук для навигации
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-import exitImage from "../../assets/exit.svg"; // Изображение для кнопки выхода
-import styles from "./CardsPageHeader.module.sass"; // Стили для компонента заголовка страницы
+import CustomButton from "../CustomButton/CustomButton";
+import { AppDispatch } from "../../utils/redux/store";
 
-// Компонент заголовка страницы с карточками
-const CardsPageHeader = () => {
-  const dispatch = useDispatch<AppDispatch>(); // Инициализация диспетчера
-  const navigate = useNavigate(); // Инициализация функции навигации
+import exitImage from "../../assets/exit.svg";
+import styles from "./CardsPageHeader.module.sass";
+import { ReactElement, useCallback } from "react";
+import { logOut } from "../../utils/scripts";
 
-  // Обработчик отправки формы
-  const handleSubmit = () => {
-    dispatch(removeUser()); // Вызов действия для удаления пользователя
-    navigate("/registration"); // Перенаправление на страницу регистрации
-  };
+/**
+ * Шапка странички с карточками сотрудников
+ */
+const CardsPageHeader = (): ReactElement => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  // Обертываем logOut в useCallback, чтобы избежать пересоздания функции
+  const handleLogOut = useCallback(
+    () => logOut(dispatch, navigate),
+    [dispatch, navigate]
+  );
 
   return (
-    <header className={styles.cards_page_header}>
-      <span className={styles.cards_page_header__possiton_button}>
+    <header className={styles.header}>
+      <span className={styles.header__possiton_button}>
         <CustomButton
-          func={handleSubmit} // Привязка обработчика к кнопке
-          value="Выход" // Текст кнопки
-          imageOnMob={exitImage} // Изображение для мобильной версии
+          func={handleLogOut}
+          value="Выход"
+          imageOnMob={exitImage}
         />
       </span>
-      <div className={styles.cards_page_header__info}>
-        <h1 className={styles.cards_page_header__info_title}>Наша команда</h1>
-        <h2 className={styles.cards_page_header__info_description}>
+      <div className={styles.header__info}>
+        <h1 className={styles.header__info_title}>Наша команда</h1>
+        <h2 className={styles.header__info_description}>
           Это опытные специалисты, хорошо разбирающиеся во всех задачах, которые
           ложатся на их плечи, и умеющие находить выход из любых, даже самых
           сложных ситуаций.

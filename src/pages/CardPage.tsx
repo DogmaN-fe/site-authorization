@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react"; // Импорт хуков useEffect и useState
-import { useParams } from "react-router-dom"; // Импорт хука useParams для получения параметров маршрута
-import { IEmployeeData } from "../utils/types"; // Импорт типа данных пользователя
-import NotUser from "../components/NotUser/NotUser"; // Импорт компонента NotUser
-import Employee from "../components/Employee/Employee"; // Импорт компонента Employee
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { IEmployeeData } from "../utils/types";
+import NotUser from "../components/NotUser/NotUser";
+import Employee from "../components/Employee/Employee";
 
-// Компонент страницы карточки пользователя
 const CardPage = () => {
-  const { id } = useParams(); // Получение id из параметров маршрута
-  const [card, setCard] = useState<IEmployeeData | null>(null); // Состояние для хранения данных карточки пользователя
+  // Получение id из параметров маршрута
+  const { id } = useParams();
+  // Переменная для хранения карточки сотрудника
+  const [card, setCard] = useState<IEmployeeData | null>(null);
 
-  // Хук useEffect для загрузки данных пользователя
   useEffect(() => {
-    fetch(`https://reqres.in/api/users/${id}`) // Запрос к API для получения данных пользователя
-      .then((res) => res.json()) // Преобразование ответа в JSON
-      .then((data) => setCard(data.data)); // Обновление состояния карточки данными пользователя
-  }, [id]); // Зависимость от id для повторного выполнения при его изменении
+    fetch(`https://reqres.in/api/users/${id}`)
+      .then((res) => res.json())
+      .then((data) => setCard(data.data));
+  }, [id]);
 
   // Условный рендеринг: если данные карточки отсутствуют, показываем NotUser, иначе Employee
   return !card ? <NotUser /> : <Employee user={card} />;

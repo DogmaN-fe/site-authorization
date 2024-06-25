@@ -3,11 +3,10 @@ import { ReactElement } from "react";
 
 const RequireAuth = ({ children }: { children: ReactElement }) => {
   // Проверка аутентификации пользователя
-  const auth = localStorage.getItem("user") ? true : false; // Получение данных о пользователе из localStorage
+  const auth: boolean = localStorage.getItem("user") ? true : false;
 
   // Условие проверки аутентификации
   if (!auth) {
-    // Если пользователь не аутентифицирован, перенаправление на страницу регистрации
     return <Navigate to="/registration" replace />;
   }
 

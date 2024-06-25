@@ -1,9 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
-import userSlice from "./features/user-slice"; // Импорт среза состояния пользователей
-import likeSlice from "./features/like-slice"; // Импорт среза состояния лайков
+import userSlice from "./features/user-slice";
+import likeSlice from "./features/like-slice";
 
-// Конфигурация хранилища Redux
 export const store = configureStore({
   reducer: {
     userSlice, // Редьюсер для обработки действий связанных с пользователями

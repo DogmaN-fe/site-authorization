@@ -1,43 +1,66 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../utils/redux/features/user-slice";
-import { AppDispatch } from "../../utils/redux/store";
 import { useNavigate } from "react-router-dom";
-import styles from "./LoginForm.module.sass";
+
 import CustomInput from "../CustomInput/CustomInput";
+import { AppDispatch } from "../../utils/redux/store";
+import { setUser } from "../../utils/redux/features/user-slice";
+import { IFormData, IFormErrorMessage } from "../../utils/types";
 
+import styles from "./LoginForm.module.sass";
+
+/**
+ * Форма для отправки данных для авторизации
+ */
 const LoginForm = () => {
-  // Состояние для данных формы
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  // Состояния для сообщений об ошибках
-  const [emptyMail, setEmptyMail] = useState("");
-  const [emptyPassword, setEmptyPassword] = useState("");
-  // Состояние для индикатора загрузки
-  const [isLoading, setIsLoading] = useState(false);
+  // Объект для хранения данных формы
+  const [formData, setFormData] = useState<IFormData | null>(null);
 
-  // Хук для отправки действий в Redux
+  // Объект для хранения сообщений об ошибках
+  const [formErrorMessage, setFormErrorMessage] =
+    useState<IFormErrorMessage | null>(null);
+
+  // Состояние для индикатора загрузки
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const dispatch = useDispatch<AppDispatch>();
-  // Хук для навигации
+
   const navigate = useNavigate();
 
-  // Обработчик отправки формы
+  /**
+   * Отправка данных на сервер
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true); // Включаем индикатор загрузки
+
+    // Включаем индикатор загрузки
+    setIsLoading(true);
+
+    // Пересенная для хранения информации об ошибках
+    let hasError: boolean = false;
 
     // Проверка на пустое поле электронной почты
-    if (!formData.email) {
-      setEmptyMail("Почта не введена");
-      setIsLoading(false); // Выключаем индикатор загрузки
-      return;
+    if (!formData?.email) {
+      setFormErrorMessage({
+        ...formErrorMessage!,
+        emailErrorMessage: "Почта не введена",
+      });
+
+      hasError = true;
     }
     // Проверка на пустое поле пароля
-    if (!formData.password) {
-      setEmptyPassword("Пароль не введен");
-      setIsLoading(false); // Выключаем индикатор загрузки
+    if (!formData?.password) {
+      setFormErrorMessage({
+        ...formErrorMessage!,
+        passwordErrorMessage: "Пароль не введен",
+      });
+      hasError = true;
+    }
+
+    // Если есть какие-то ошибки, то отменяем отправку данных
+    if (hasError) {
+      // Выключаем индикатор загрузки
+      setIsLoading(false);
       return;
     }
 
@@ -51,33 +74,37 @@ const LoginForm = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data?.error) {
-          dispatch(setUser(data)); // Сохраняем пользователя в Redux
-          navigate("/cards"); // Переходим на страницу с карточками
+        if (!data.error) {
+          // Сохраняем пользователя в Redux
+          dispatch(setUser(data));
+          // Переходим на страницу с карточками
+          navigate("/cards");
         } else {
-          setEmptyMail("Неверный логин/пароль");
+          setFormErrorMessage({
+            ...formErrorMessage!,
+            emailErrorMessage: "Неверный логин/пароль",
+          });
         }
-        setIsLoading(false); // Выключаем индикатор загрузки
+        // Выключаем индикатор загрузки
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log("Ошибка: " + error);
-        setIsLoading(false); // Выключаем индикатор загрузки при ошибке
       });
   };
 
-  // Обработчик изменения полей ввода
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Очищаем сообщения об ошибках при изменении содержимого полей
-    switch (e.target.name) {
-      case "email":
-        setEmptyMail("");
-        break;
-      case "password":
-        setEmptyPassword("");
-        break;
-    }
+  /**
+   * Функция-обработчик изменения полей ввода
+   */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    // Деструктурируем данные input'а (тип и значение)
+    const { name, value } = e.target;
+
+    // Очищаем информацию об ошибки определенного input
+    setFormErrorMessage({ ...formErrorMessage!, [`${name}ErrorMessage`]: "" });
+
     // Обновляем состояние с данными формы
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData!, [name]: value });
   };
 
   return (
@@ -88,26 +115,25 @@ const LoginForm = () => {
           type={"email"}
           name={"email"}
           text={"Электронная почта"}
-          value={formData.email}
+          value={formData?.email || ""}
           handleChange={handleChange}
           placeholder={"example@mail.ru"}
-          error={emptyMail}
+          error={formErrorMessage?.emailErrorMessage}
         />
         <CustomInput
           type={"password"}
           name={"password"}
           text={"Пароль"}
-          value={formData.password}
+          value={formData?.password || ""}
           handleChange={handleChange}
           placeholder={"******"}
-          error={emptyPassword}
+          error={formErrorMessage?.passwordErrorMessage}
         />
         <button
           type="submit"
           className={styles.login__form_button}
           disabled={isLoading}
         >
-          {/* Текст кнопки изменяется в зависимости от состояния загрузки */}
           {isLoading ? "Загрузка..." : "Войти"}
         </button>
       </form>

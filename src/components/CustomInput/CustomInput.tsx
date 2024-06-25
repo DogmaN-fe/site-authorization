@@ -1,14 +1,25 @@
-import { ChangeEventHandler } from "react"; // Тип для обработчика изменений
-import styles from "./CustomInput.module.sass"; // Стили для компонента
+import { ChangeEventHandler, ReactElement } from "react";
+import styles from "./CustomInput.module.sass";
 
+/**
+ * Кастомный input
+ * @param  type Тип поля ввода
+ * @param name Имя поля для идентификации
+ * @param text Текст метки
+ * @param  value Значение поля ввода
+ * @param handleChange Функция для обработки изменений
+ * @param placeholder Текст-подсказка внутри поля
+ * @param error Текст ошибки
+ * @returns Польностью настроеный input
+ */
 const CustomInput = ({
-  type, // Тип поля ввода
-  name, // Имя поля для идентификации
-  text, // Текст метки
-  value, // Значение поля ввода
-  handleChange, // Функция для обработки изменений
-  placeholder, // Текст-подсказка внутри поля
-  error, // Текст ошибки
+  type,
+  name,
+  text,
+  value,
+  handleChange,
+  placeholder,
+  error,
 }: {
   type: string;
   name: string;
@@ -17,21 +28,24 @@ const CustomInput = ({
   handleChange: ChangeEventHandler<HTMLInputElement>;
   placeholder: string;
   error?: string;
-}) => {
+}): ReactElement => {
   return (
-    <label className={styles.label}>
-      {/* Контейнер метки */}
-      <p className={styles.label__title}>{text}</p> {/* Заголовок метки */}
+    <label htmlFor={name} className={styles.label}>
+      <p className={styles.label__title}>{text}</p>
       <input
-        type={type} // Установка типа поля ввода
-        name={name} // Установка имени поля
-        value={value} // Установка значения поля
-        onChange={handleChange} // Привязка функции обработки изменений
-        placeholder={placeholder} // Установка текста-подсказки
-        className={styles.label__input} // Применение стилей для поля ввода
+        id={name}
+        type={type}
+        name={name}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={styles.label__input}
       />
-      {error && <p className={styles.label__error}>{error}</p>}
-      {/* Отображение текста ошибки, если он есть */}
+      {error && (
+        <p id={`${name}-error`} className={styles.label__error}>
+          {error}
+        </p>
+      )}
     </label>
   );
 };

@@ -1,55 +1,67 @@
-import { useEffect, useState } from "react"; // Импорт хуков useEffect и useState для работы с жизненным циклом и состоянием
-import { IApiResponse, IEmployeeData } from "../utils/types"; // Импорт типов IApiResponse и IUserData
-import CardsPageHeader from "../components/CardsPageHeader/CardsPageHeader"; // Импорт компонента заголовка страницы карточек
-import EmployeeCard from "../components/EmployeeCard/EmployeeCard"; // Импорт компонента карточки сотрудника
-import styles from "../sass/cardsPage.module.sass"; // Импорт стилей для страницы карточек
-import { useDispatch } from "react-redux"; // Импорт хука useDispatch для работы с Redux
-import { AppDispatch } from "../utils/redux/store"; // Импорт типа AppDispatch из хранилища Redux
-import { loadLikes } from "../utils/redux/features/like-slice"; // Импорт действия loadLikes из среза лайков
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+
+import CardsPageHeader from "../components/CardsPageHeader/CardsPageHeader";
+import EmployeeCard from "../components/EmployeeCard/EmployeeCard";
+import { IEmployeeData } from "../utils/types";
+import { AppDispatch } from "../utils/redux/store";
+import { loadLikes } from "../utils/redux/features/like-slice";
+
+import styles from "../sass/cardsPage.module.sass";
 import arrow_down from "../assets/arrow-down.svg";
 
 const CardsPage = () => {
-  const [cards, setCards] = useState<IEmployeeData[] | []>([]); // Состояние для хранения массива карточек сотрудников
-  const [page, setPage] = useState(1); // Состояние для хранения страницы на api
-  const [active, setActive] = useState(false);
+  // Переменная для хранения карточек
+  const [cards, setCards] = useState<IEmployeeData[] | []>([]);
+  // Переменная для хранения страницы с карточками
+  const [page, setPage] = useState(1);
+  // Переменная для хранения полследней страницы с карточакми
+  const [lastPage, setLastPage] = useState(null);
+  // Переменная для отоброжения кнопки 'Показать еще'
+  const [activeButton, setActiveButton] = useState(false);
 
-  const dispatch = useDispatch<AppDispatch>(); // Инициализация диспетчера Redux
+  const dispatch = useDispatch<AppDispatch>();
 
-  // Хук useEffect для загрузки данных о сотрудниках
   useEffect(() => {
-    fetch(`https://reqres.in/api/users?page=${page}`) // Запрос к API для получения списка сотрудников
-      .then((res) => res.json()) // Преобразование ответа в JSON
-      .then((data: IApiResponse) => {
+    fetch(`https://reqres.in/api/users?page=${page}`)
+      .then((res) => res.json())
+      .then((data) => {
         const newCards: IEmployeeData[] | [] = [...cards, ...data.data];
-        setCards(newCards); // Обновление состояния массивом карточек сотрудников
+        // Обновление состояния массивом карточек сотрудников
+        setCards(newCards);
+        // Сохраняем последнюю страницу карточек
+        setLastPage(data.total_pages);
       });
   }, [page]);
 
-  // Хук useEffect для загрузки лайков
   useEffect(() => {
-    dispatch(loadLikes()); // Вызов действия loadLikes для загрузки лайков
-  }, [dispatch]); // Зависимость от dispatch для повторного выполнения при его изменении
+    // Загружаем лайки для карточек
+    dispatch(loadLikes());
+  }, [dispatch]);
 
   const newCards = () => {
-    setPage(2);
-    setActive(true);
-    console.log("new card added!");
+    // Если сраница полседння то деактивируем кнопку 'Показать еще'
+    if (page === lastPage) {
+      setActiveButton(true);
+    } else {
+      setPage(page + 1);
+    }
   };
 
   return (
     <>
-      <CardsPageHeader /> {/* Рендеринг заголовка страницы */}
+      <CardsPageHeader />
       <main className={styles.main}>
         <section className={styles.main__cards}>
-          {/* Раздел для отображения карточек сотрудников */}
           {cards?.map((card) => {
-            // Итерация по массиву карточек сотрудников
-            return <EmployeeCard card={card} key={card.id} />; // Рендеринг карточки сотрудника
+            return <EmployeeCard card={card} key={card.id} />;
           })}
         </section>
         <span className={styles.main__section_button}>
           <button
-            className={`${styles.button} ${active ? styles.button_hidden : ""}`}
+            className={`${styles.button} ${
+              activeButton ? styles.button_hidden : ""
+            }`}
             onClick={newCards}
           >
             <p className={styles.button__text}>Показать еще</p>

@@ -1,35 +1,37 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { ILiked } from "../../types"; // Импорт типа ILiked
+import { ILike } from "../../types";
 
-// Создание среза состояния для лайков
 export const likeSlice = createSlice({
-  name: "user", // Название среза
+  name: "user",
   initialState: {
-    liked: [] as ILiked[], // Начальное состояние - пустой массив лайков
+    likes: [] as ILike[],
   },
   reducers: {
-    // Добавление лайка
-    addLike: (state, action: PayloadAction<ILiked>) => {
-      state.liked.push(action.payload); // Добавление лайка в состояние
+    addLike: (state, action: PayloadAction<ILike>) => {
+      // Добавление лайка
+      state.likes.push(action.payload);
 
-      localStorage.setItem("likes", JSON.stringify(state.liked)); // Сохранение лайков в локальном хранилище
+      // Сохранение лайков в локальном хранилище
+      localStorage.setItem("likes", JSON.stringify(state.likes));
     },
-    // Удаление лайка
-    removeLike: (state, action: PayloadAction<ILiked>) => {
-      state.liked = state.liked.filter((el) => el.id !== action.payload.id); // Удаление лайка из состояния
+    removeLike: (state, action: PayloadAction<ILike>) => {
+      // Удаление лайка
+      state.likes = state.likes.filter((el) => el.id !== action.payload.id);
 
-      localStorage.setItem("likes", JSON.stringify(state.liked)); // Обновление лайков в локальном хранилище
+      // Обновление лайков в локальном хранилище
+      localStorage.setItem("likes", JSON.stringify(state.likes));
     },
-    // Загрузка лайков
     loadLikes: (state) => {
-      const buffer = localStorage.getItem("likes"); // Получение лайков из локального хранилища
+      // Получение лайков из локального хранилища
+      const buffer = localStorage.getItem("likes"); 
+
+      // Если лайки есть, то сохраняем их в сторе
       if (buffer) {
-        state.liked = JSON.parse(buffer); // Парсинг и обновление состояния лайками
+        state.likes = JSON.parse(buffer);
       }
     },
   },
 });
 
-// Экспорт действий среза
 export const { addLike, removeLike, loadLikes } = likeSlice.actions;
-export default likeSlice.reducer; // Экспорт редьюсера среза
+export default likeSlice.reducer;

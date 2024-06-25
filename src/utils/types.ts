@@ -19,11 +19,17 @@ export interface IEmployeeData {
   avatar: string;
 }
 
-// Тип ответа сервера на получение карточек сотрудников
-export interface IApiResponse {
-  page: number;
-  per_page: number;
-  total: number;
-  total_pages: number;
-  data: IEmployeeData[];
+// Тип данных формы
+export interface IFormData {
+  email: string;
+  password: string;
+  name?: string;
+  duplicatePassword?: string;
+}
+
+// Тип данных ошибок в форме
+export interface IFormErrorMessage {
+  emailErrorMessage: string;
+  passwordErrorMessage: string;
+  nameErrorMessage?: string;
 }

@@ -1,30 +1,30 @@
-import { additionalInfo } from "../../utils/additional-info"; // Дополнительная информация о сотруднике
-import { IEmployeeData } from "../../utils/types"; // Тип данных пользователя
-import styles from "./Employee.module.sass"; // Стили модуля
-import EmployeeHead from "../EmployeeHead/EmployeeHead"; // Компонент шапки сотрудника
-import EmployeeContacts from "../EmployeeContacts/EmployeeContacts"; // Компонент контактов сотрудника
-import EmployeeDescription from "../EmployeeDescription/EmployeeDescription"; // Компонент описания сотрудника
+import { additionalInfo } from "../../utils/additional-info";
+import { IEmployeeData } from "../../utils/types";
 
-const Employee = ({
-  user, // сотрудника
-}: {
-  user: IEmployeeData;
-}) => {
+import EmployeeHead from "./EmployeeHead/EmployeeHead";
+import EmployeeContacts from "./EmployeeContacts/EmployeeContacts";
+import EmployeeDescription from "./EmployeeDescription/EmployeeDescription";
+
+import styles from "./Employee.module.sass";
+import { ReactElement } from "react";
+
+/**
+ * Страничка сотрудника
+ * @param user Сотрудник
+ */
+const Employee = ({ user }: { user: IEmployeeData }): ReactElement => {
+  const { description, phone } = additionalInfo;
   return (
     <>
-      {/* Шапка сотрудника с аватаром и именем */}
       <EmployeeHead
         avatar={user?.avatar}
         first_name={user?.first_name}
         last_name={user?.last_name}
       />
       <main className={styles.employee}>
-        {/* Блок с описанием и контактами сотрудника */}
         <section className={styles.employee__description}>
-          {/* Описание сотрудника */}
-          <EmployeeDescription description={additionalInfo.description} />
-          {/* Контакты сотрудника */}
-          <EmployeeContacts email={user.email} phone={additionalInfo.phone} />
+          <EmployeeDescription description={description} />
+          <EmployeeContacts email={user.email} phone={phone} />
         </section>
       </main>
     </>

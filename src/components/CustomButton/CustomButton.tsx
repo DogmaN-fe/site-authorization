@@ -1,40 +1,33 @@
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, ReactElement } from "react";
 import styles from "./CustomButton.module.sass";
-import { useState, useEffect } from "react";
+import { useMediaQuery } from "react-responsive";
 
+/**
+ * Кастомная кнопка
+ * @param func Функция, вызываемая при клике на кнопку
+ * @param value Текст, отображаемый на кнопке
+ * @param imageOnMob Ссылка на изображение для мобильных устройств
+ * @returns Настроенная кнопка
+ */
 const CustomButton = ({
-  func, // Функция, вызываемая при клике на кнопку
-  value, // Текст, отображаемый на кнопке
-  imageOnMob, // Ссылка на изображение для мобильных устройств
+  func,
+  value,
+  imageOnMob,
 }: {
   func: MouseEventHandler<HTMLButtonElement>;
   value: string;
   imageOnMob?: string;
-}) => {
+}): ReactElement => {
   // Хук состояния для определения, является ли устройство мобильным
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 750);
-
-  // Хук эффекта для обработки изменения размера окна
-  useEffect(() => {
-    // Функция для обработки изменения размера окна
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 750); // Обновление состояния при изменении размера окна
-    };
-
-    // Добавление обработчика события resize
-    window.addEventListener("resize", handleResize);
-
-    // Очистка обработчика события
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const isMobile = useMediaQuery({ query: "(max-width: 750px)" });
 
   return (
     <button className={styles.button} onClick={func}>
-      {/* Применение стилей и функции клика */}
-      {isMobile && imageOnMob ? <img src={imageOnMob} alt={imageOnMob} /> : value}
-      {/* Отображение изображения или текста в зависимости от устройства */}
+      {isMobile && imageOnMob ? (
+        <img src={imageOnMob} alt="Изображение кнопки" />
+      ) : (
+        value
+      )}
     </button>
   );
 };
