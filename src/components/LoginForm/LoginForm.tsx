@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
-import CustomInput from "../CustomInput/CustomInput";
 import { AppDispatch } from "../../utils/redux/store";
 import { setUser } from "../../utils/redux/features/user-slice";
-import { IFormData, IFormErrorMessage } from "../../utils/types";
+import { IFormData } from "../../utils/types";
 
 import styles from "./LoginForm.module.sass";
 
@@ -13,13 +13,6 @@ import styles from "./LoginForm.module.sass";
  * Форма для отправки данных для авторизации
  */
 const LoginForm = () => {
-  // Объект для хранения данных формы
-  const [formData, setFormData] = useState<IFormData | null>(null);
-
-  // Объект для хранения сообщений об ошибках
-  const [formErrorMessage, setFormErrorMessage] =
-    useState<IFormErrorMessage | null>(null);
-
   // Состояние для индикатора загрузки
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -27,42 +20,17 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
+  // Работа с формой
+  const { register, handleSubmit, formState, setError } = useForm<IFormData>({
+    mode: "onChange",
+  });
+
   /**
    * Отправка данных на сервер
    */
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const onSubmit = (formData: IFormData) => {
     // Включаем индикатор загрузки
     setIsLoading(true);
-
-    // Пересенная для хранения информации об ошибках
-    let hasError: boolean = false;
-
-    // Проверка на пустое поле электронной почты
-    if (!formData?.email) {
-      setFormErrorMessage({
-        ...formErrorMessage!,
-        emailErrorMessage: "Почта не введена",
-      });
-
-      hasError = true;
-    }
-    // Проверка на пустое поле пароля
-    if (!formData?.password) {
-      setFormErrorMessage({
-        ...formErrorMessage!,
-        passwordErrorMessage: "Пароль не введен",
-      });
-      hasError = true;
-    }
-
-    // Если есть какие-то ошибки, то отменяем отправку данных
-    if (hasError) {
-      // Выключаем индикатор загрузки
-      setIsLoading(false);
-      return;
-    }
 
     // Отправка запроса на сервер
     fetch("https://reqres.in/api/register", {
@@ -75,14 +43,13 @@ const LoginForm = () => {
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
-          // Сохраняем пользователя в Redux
+          // Сохраняем пользователя в стейт
           dispatch(setUser(data));
           // Переходим на страницу с карточками
           navigate("/cards");
         } else {
-          setFormErrorMessage({
-            ...formErrorMessage!,
-            emailErrorMessage: "Неверный логин/пароль",
+          setError("email", {
+            message: "Неверная почта/пароль",
           });
         }
         // Выключаем индикатор загрузки
@@ -90,45 +57,47 @@ const LoginForm = () => {
       })
       .catch((error) => {
         console.log("Ошибка: " + error);
+        setIsLoading(false);
       });
   };
 
-  /**
-   * Функция-обработчик изменения полей ввода
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    // Деструктурируем данные input'а (тип и значение)
-    const { name, value } = e.target;
-
-    // Очищаем информацию об ошибки определенного input
-    setFormErrorMessage({ ...formErrorMessage!, [`${name}ErrorMessage`]: "" });
-
-    // Обновляем состояние с данными формы
-    setFormData({ ...formData!, [name]: value });
-  };
+  const emailError = formState.errors["email"]?.message;
+  const passwordError = formState.errors["password"]?.message;
 
   return (
     <section className={styles.login}>
-      <form onSubmit={handleSubmit} className={styles.login__form}>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.login__form}>
         <p className={styles.login__form_title}>Вход</p>
-        <CustomInput
-          type={"email"}
-          name={"email"}
-          text={"Электронная почта"}
-          value={formData?.email || ""}
-          handleChange={handleChange}
-          placeholder={"example@mail.ru"}
-          error={formErrorMessage?.emailErrorMessage}
-        />
-        <CustomInput
-          type={"password"}
-          name={"password"}
-          text={"Пароль"}
-          value={formData?.password || ""}
-          handleChange={handleChange}
-          placeholder={"******"}
-          error={formErrorMessage?.passwordErrorMessage}
-        />
+        <label className={styles.label}>
+          <p className={styles.label__title}>{"Электронная почта"}</p>
+          <input
+            type={"email"}
+            placeholder={"example@mail.ru"}
+            {...register("email", {
+              required: "Почта не введена",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                message: "Не правильная почта",
+              },
+            })}
+            className={styles.label__input}
+          />
+          {emailError && <p className={styles.label__error}>{emailError}</p>}
+        </label>
+        <label className={styles.label}>
+          <p className={styles.label__title}>{"Пароль"}</p>
+          <input
+            type={"password"}
+            placeholder={"******"}
+            {...register("password", {
+              required: "Пароль не введен",
+            })}
+            className={styles.label__input}
+          />
+          {passwordError && (
+            <p className={styles.label__error}>{passwordError}</p>
+          )}
+        </label>
         <button
           type="submit"
           className={styles.login__form_button}

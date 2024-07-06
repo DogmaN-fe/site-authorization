@@ -5,69 +5,35 @@ import { Link, useNavigate } from "react-router-dom";
 import CustomInput from "../CustomInput/CustomInput";
 import { AppDispatch } from "../../utils/redux/store";
 import { setUser } from "../../utils/redux/features/user-slice";
-import { IFormData, IFormErrorMessage } from "../../utils/types";
+import { IFormData } from "../../utils/types";
 
 import styles from "./RegistrationForm.module.sass";
+import { useForm } from "react-hook-form";
+import React from "react";
 
 const RegistrationForm = () => {
-  // Состояние для данных формы
-  const [formData, setFormData] = useState<IFormData | null>(null);
-
-  // Объект для хранения сообщений об ошибках
-  const [formErrorMessage, setFormErrorMessage] =
-    useState<IFormErrorMessage | null>(null);
-
   // Состояние для индикатора загрузки
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // Обработчик отправки формы
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // Работа с формой
+  const { register, handleSubmit, formState, setError, watch } =
+    useForm<IFormData>({
+      mode: "onChange",
+    });
 
+  const password = React.useRef({});
+  password.current = watch("password", "");
+
+  const nameError = formState.errors["name"]?.message;
+  const emailError = formState.errors["email"]?.message;
+  const duplicatePasswordError = formState.errors["duplicatePassword"]?.message;
+
+  const onSubmit = (formData: IFormData) => {
     // Включаем индикатор загрузки
     setIsLoading(true);
-
-    // Пересенная для хранения информации об ошибках
-    let hasError: boolean = false;
-
-    // Проверка на пустое поле имени
-    if (!formData?.name) {
-      setFormErrorMessage({
-        ...formErrorMessage!,
-        nameErrorMessage: "Имя не введено",
-      });
-
-      hasError = true;
-    }
-    // Проверка на пустое поле электронной почты
-    if (!formData?.email) {
-      setFormErrorMessage({
-        ...formErrorMessage!,
-        emailErrorMessage: "Почта не введена",
-      });
-
-      hasError = true;
-    }
-    // Проверка на совпадение паролей
-    if (formData?.password !== formData?.duplicatePassword) {
-      setFormErrorMessage({
-        ...formErrorMessage!,
-        passwordErrorMessage: "Пароли не совпадают",
-      });
-      hasError = true;
-    }
-
-    // Если есть какие-то ошибки, то отменяем отправку данных
-    if (hasError) {
-      // Выключаем индикатор загрузки
-      setIsLoading(false);
-      console.log("false");
-
-      return;
-    }
 
     // Отправка запроса на сервер
     fetch("https://reqres.in/api/register", {
@@ -79,10 +45,16 @@ const RegistrationForm = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        // Сохраняем пользователя в store
-        dispatch(setUser(data));
-        // Переходим на страницу с карточками
-        navigate("/cards");
+        if (!data.error) {
+          // Сохраняем пользователя в стейт
+          dispatch(setUser(data));
+          // Переходим на страницу с карточками
+          navigate("/cards");
+        } else {
+          setError("email", {
+            message: "Неверная почта/пароль",
+          });
+        }
       })
       .catch((error) => {
         console.log("Ошибка: " + error);
@@ -93,59 +65,77 @@ const RegistrationForm = () => {
       });
   };
 
-  /**
-   * Функция-обработчик изменения полей ввода
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Деструктурируем данные input'а (тип и значение)
-    const { name, value } = e.target;
-
-    // Очищаем информацию об ошибки определенного input
-    setFormErrorMessage({ ...formErrorMessage!, [`${name}ErrorMessage`]: "" });
-
-    // Обновляем состояние с данными формы
-    setFormData({ ...formData!, [name]: value });
-  };
-
   return (
     <section className={styles.registration}>
-      <form onSubmit={handleSubmit} className={styles.registration__form}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={styles.registration__form}
+      >
         <p className={styles.registration__form_title}>Регистрация</p>
-        <CustomInput
-          type={"text"}
-          name={"name"}
-          text={"Имя"}
-          value={formData?.name || ""}
-          handleChange={handleChange}
-          placeholder={"Имя"}
-          error={formErrorMessage?.nameErrorMessage}
-        />
-        <CustomInput
-          type={"email"}
-          name={"email"}
-          text={"Электронная почта"}
-          value={formData?.email || ""}
-          handleChange={handleChange}
-          placeholder={"example@mail.ru"}
-          error={formErrorMessage?.emailErrorMessage}
-        />
-        <CustomInput
-          type={"password"}
-          name={"password"}
-          text={"Пароль"}
-          value={formData?.password || ""}
-          handleChange={handleChange}
-          placeholder={"******"}
-          error={formErrorMessage?.passwordErrorMessage}
-        />
-        <CustomInput
-          type={"password"}
-          name={"duplicatePassword"}
-          text={"Подтвердите пароль"}
-          value={formData?.duplicatePassword || ""}
-          handleChange={handleChange}
-          placeholder={"******"}
-        />
+
+        {/** label of name */}
+        <label className={styles.label}>
+          <p className={styles.label__title}>{"Имя"}</p>
+          <input
+            type={"text"}
+            placeholder={"Иван Иванов"}
+            {...register("name", {
+              required: "Имя не введено",
+            })}
+            className={styles.label__input}
+          />
+          {nameError && <p className={styles.label__error}>{nameError}</p>}
+        </label>
+
+        {/** label of email */}
+        <label className={styles.label}>
+          <p className={styles.label__title}>{"Электронная почта"}</p>
+          <input
+            type={"email"}
+            placeholder={"example@mail.ru"}
+            {...register("email", {
+              required: "Почта не введена",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                message: "Не правильная почта",
+              },
+            })}
+            className={styles.label__input}
+          />
+          {emailError && <p className={styles.label__error}>{emailError}</p>}
+        </label>
+
+        {/** label of password */}
+        <label className={styles.label}>
+          <p className={styles.label__title}>{"Пароль"}</p>
+          <input
+            type={"password"}
+            placeholder={"******"}
+            {...register("password", {
+              required: "Пароль не введен",
+            })}
+            className={styles.label__input}
+          />
+        </label>
+
+        {/** label of confirm password */}
+        <label>
+          <p className={styles.label__title}>{"Пароль"}</p>
+          <input
+            type={"password"}
+            placeholder={"******"}
+            {...register("duplicatePassword", {
+              validate: (value) => {
+                return value === password.current || "Пароли не совпадают";
+              },
+            })}
+            className={styles.label__input}
+          />
+          {duplicatePasswordError && (
+            <p className={styles.label__error}>{duplicatePasswordError}</p>
+          )}
+        </label>
+
         <button
           type="submit"
           className={styles.registration__form_button}

@@ -26,10 +26,3 @@ export interface IFormData {
   name?: string;
   duplicatePassword?: string;
 }
-
-// Тип данных ошибок в форме
-export interface IFormErrorMessage {
-  emailErrorMessage: string;
-  passwordErrorMessage: string;
-  nameErrorMessage?: string;
-}

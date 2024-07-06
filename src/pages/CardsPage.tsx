@@ -15,9 +15,9 @@ const CardsPage = (): ReactElement => {
   const [cards, setCards] = useState<IEmployeeData[] | []>([]);
   // Переменная для хранения страницы с карточками
   const [page, setPage] = useState(1);
-  // Переменная для хранения полследней страницы с карточакми
+  // Переменная для хранения последней страницы с карточками
   const [lastPage, setLastPage] = useState(null);
-  // Переменная для отоброжения кнопки 'Показать еще'
+  // Переменная для отображения кнопки 'Показать еще'
   const [activeButton, setActiveButton] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -40,7 +40,7 @@ const CardsPage = (): ReactElement => {
   }, [dispatch]);
 
   const newCards = () => {
-    // Если сраница полседння то деактивируем кнопку 'Показать еще'
+    // Если страница последняя то деактивируем кнопку 'Показать еще'
     if (page === lastPage) {
       setActiveButton(true);
     } else {

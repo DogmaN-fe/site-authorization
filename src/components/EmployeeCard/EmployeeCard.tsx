@@ -46,6 +46,7 @@ const EmployeeCard = ({ card }: { card: IEmployeeData }) => {
     [card.id, dispatch, isLiked]
   );
 
+  // let num = str === "two" ? 2 : 1
   return (
     <>
       <Link to={`/cards/${card.id}`} className={styles.link}>
